@@ -1,6 +1,6 @@
 import { Injectable,HttpException,HttpStatus } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { LessThanOrEqual, MoreThanOrEqual,MoreThan, Repository } from "typeorm";
+import { LessThanOrEqual, MoreThanOrEqual,MoreThan, Repository, DefaultNamingStrategy } from "typeorm";
 import { PatientDto, UpdatePateintDto } from "./dto/patient.dto";
 import PatientEntity from "./entities/patient.entity";
 
@@ -23,10 +23,13 @@ export class ClinicService {
         const dateA = new Date(createPatientDto.dateA)
         const dateB = new Date(createPatientDto.dateA)
         dateB.setHours(dateB.getHours()+1)
-        console.log(dateA,dateB)
         const working = await this.ClinicRepository.findOne({
-            where: { dateA: MoreThanOrEqual(dateA), dateB: LessThanOrEqual(dateB) }
+            where: { 
+            dentistName:createPatientDto.dentist,
+            dateA: MoreThanOrEqual(dateA),        
+            dateB: LessThanOrEqual(dateB)}
         })
+        
         if (working) {
             throw new HttpException(`Please write another time,${dateA}to${dateB}is booked`,HttpStatus.BAD_REQUEST)
         }
@@ -39,6 +42,7 @@ export class ClinicService {
         if (dateA.getHours() >= 12 && dateA.getHours() <= 13) {
             throw new HttpException(`It's time for dinner`,HttpStatus.BAD_REQUEST)
         }
+      
         const newPatient = { ...createPatientDto, dateB: dateB }
         return await this.ClinicRepository.save(newPatient)
     }
