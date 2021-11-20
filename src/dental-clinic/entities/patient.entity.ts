@@ -14,6 +14,4 @@ export default class PatientEntity implements IPatient {
     @Column('timestamp',{nullable:true})
     dateB:Date;
  
-
-
 }

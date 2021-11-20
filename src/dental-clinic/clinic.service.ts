@@ -25,7 +25,6 @@ export class ClinicService {
         dateB.setHours(dateB.getHours()+1)
         const working = await this.ClinicRepository.findOne({
             where: { 
-            dentistName:createPatientDto.dentist,
             dateA: MoreThanOrEqual(dateA),        
             dateB: LessThanOrEqual(dateB)}
         })
