@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable,HttpException,HttpStatus } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { LessThanOrEqual, MoreThanOrEqual,MoreThan, Repository } from "typeorm";
 import { PatientDto, UpdatePateintDto } from "./dto/patient.dto";
@@ -21,26 +21,25 @@ export class ClinicService {
 
     async create(createPatientDto: PatientDto): Promise<PatientEntity> {
         const dateA = new Date(createPatientDto.date)
-
-        const dateB = dateA.setHours(+1)
-        
+        const dateB = new Date(dateA.setHours(+1))
+        console.log(new Date())
 
         const working = await this.ClinicRepository.findOne({
             where: { dateA: MoreThanOrEqual(dateA), dateB: LessThanOrEqual(dateB) }
         })
         if (working) {
-            throw new Error(`Please write another time,${dateA}to${dateB}is booked`)
+            throw new HttpException(`Please write another time,${dateA}to${dateB}is booked`,HttpStatus.BAD_REQUEST)
         }
         if(dateA.getDay()<=0||dateA.getDay()>=6){
-            throw new Error(`Clinic is not working on weekend`)
+            throw new HttpException(`Clinic is not working on weekend`,HttpStatus.BAD_REQUEST)
         }
         if (dateA.getHours() < 9 || dateA.getHours() > 17) {
-            throw new Error(`Clinic is working since 9:00 to 17:00`)
+            throw new HttpException(`Clinic is working since 9:00 to 17:00`,HttpStatus.BAD_REQUEST)
         }
         if (dateA.getHours() >= 12 && dateA.getHours() <= 13) {
-            throw new Error(`It's time for dinner`)
+            throw new HttpException(`It's time for dinner`,HttpStatus.BAD_REQUEST)
         }
-        const newPatient = await { ...createPatientDto, DateB: dateB }
+        const newPatient = { ...createPatientDto, DateB: dateB }
         return await this.ClinicRepository.save(newPatient)
     }
     async update(patientId: number, updatePateintDto: UpdatePateintDto): Promise<PatientEntity> {
