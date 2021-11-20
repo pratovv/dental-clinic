@@ -39,7 +39,7 @@ export class ClinicService {
         if (dateA.getHours() >= 12 && dateA.getHours() <= 13) {
             throw new HttpException(`It's time for dinner`,HttpStatus.BAD_REQUEST)
         }
-        const newPatient = { ...createPatientDto, DateB: dateB }
+        const newPatient = { ...createPatientDto, dateB: dateB }
         return await this.ClinicRepository.save(newPatient)
     }
     async update(patientId: number, updatePateintDto: UpdatePateintDto): Promise<PatientEntity> {

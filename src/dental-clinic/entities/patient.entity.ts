@@ -11,8 +11,8 @@ export default class PatientEntity implements IPatient {
     dentistName: 'Adilet' | 'Feruza';
     @Column('timestamp', { nullable: false })
     dateA: Date | string;
-    @Column('timestamp',{nullable:false})
-    dateB?:Date;
+    @Column('timestamp',{nullable:true})
+    dateB:Date;
  
 
 

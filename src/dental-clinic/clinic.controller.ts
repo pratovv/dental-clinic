@@ -10,8 +10,8 @@ export class ClinicController {
         return this.clinicService.findall()
     }
     @Get('/clinic/:dentist')
-    async dentist(@Param('dentist') dentist: string) {
-        return this.clinicService.dintist(dentist)
+    async dentist(@Param('dentist') dentistName: string) {
+        return this.clinicService.dintist(dentistName)
     }
     @Get('/clinic/active')
     async active() {
@@ -25,7 +25,7 @@ export class ClinicController {
     update(@Param('patientId') patientId: number, @Body() updatePateintDto: UpdatePateintDto) {
         return this.clinicService.update(patientId, updatePateintDto)
     }
-    @Delete(':id')
+    @Delete('/clinic/:id')
     remove(@Param('patientId') patientId: number){
         return this.clinicService.remove(patientId)
     }
