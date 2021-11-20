@@ -20,10 +20,10 @@ export class ClinicService {
     }
 
     async create(createPatientDto: PatientDto): Promise<PatientEntity> {
-        const dateA = new Date(createPatientDto.date)
-        const dateB = new Date(dateA.setHours(+1))
-        console.log(new Date())
-
+        const dateA = new Date(createPatientDto.dateA)
+        const dateB = new Date(createPatientDto.dateA)
+        dateB.setHours(dateB.getHours()+1)
+        console.log(dateA,dateB)
         const working = await this.ClinicRepository.findOne({
             where: { dateA: MoreThanOrEqual(dateA), dateB: LessThanOrEqual(dateB) }
         })
@@ -45,7 +45,7 @@ export class ClinicService {
     async update(patientId: number, updatePateintDto: UpdatePateintDto): Promise<PatientEntity> {
         const planned = await this.ClinicRepository.findOne(patientId)
         if (!planned) {
-            throw new Error(`${planned}is not found`)
+            throw new HttpException(`${planned}is not found`,HttpStatus.BAD_REQUEST)
         }
         Object.assign(planned, updatePateintDto)
         return await this.ClinicRepository.save(planned)
@@ -53,7 +53,7 @@ export class ClinicService {
     async remove(id: number) {
         const working = await this.ClinicRepository.findOne(id)
         if (!working){
-        throw new Error(`This ${id}wasn't found`)
+        throw new HttpException(`This ${id}wasn't found`,HttpStatus.BAD_REQUEST)
         }     
         return await this.ClinicRepository.delete(id)
         }

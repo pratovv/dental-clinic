@@ -3,5 +3,5 @@ export default interface IPatient{
     readonly patientName:string;
     readonly dentistName:'Adilet'|'Feruza';
     readonly dateA:Date|string;
-    readonly dateB:Date;
+    readonly dateB?:Date;
 }
