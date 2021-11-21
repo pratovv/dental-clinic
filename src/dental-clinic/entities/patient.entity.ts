@@ -1,3 +1,4 @@
+
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import IPatient from "../interfaces/patient.interface";
 
@@ -10,8 +11,8 @@ export default class PatientEntity implements IPatient {
     @Column()
     dentistName: 'Adilet' | 'Feruza';
     @Column('timestamp', { nullable: false })
-    dateA: Date | string;
+    dateA: Date | string|boolean;
     @Column('timestamp',{nullable:true})
-    dateB:Date;
+    dateB:Date|boolean;
  
 }

@@ -1,6 +1,6 @@
-import { Injectable,HttpException,HttpStatus } from "@nestjs/common";
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { LessThanOrEqual, MoreThanOrEqual,MoreThan, Repository, DefaultNamingStrategy } from "typeorm";
+import { LessThanOrEqual, MoreThanOrEqual, MoreThan, Repository, DefaultNamingStrategy } from "typeorm";
 import { PatientDto, UpdatePateintDto } from "./dto/patient.dto";
 import PatientEntity from "./entities/patient.entity";
 
@@ -22,47 +22,56 @@ export class ClinicService {
     async create(createPatientDto: PatientDto): Promise<PatientEntity> {
         const dateA = new Date(createPatientDto.dateA)
         const dateB = new Date(createPatientDto.dateA)
-        dateB.setHours(dateB.getHours()+1)
+        dateB.setHours(dateB.getHours() + 1)
         const working = await this.ClinicRepository.findOne({
-            where: { 
-            dateA: MoreThanOrEqual(dateA),        
-            dateB: LessThanOrEqual(dateB)}
+            where: {
+                dentistName: createPatientDto.dentist,
+                dateA: LessThanOrEqual(dateA),
+                dateB: MoreThanOrEqual(dateA)
+            }
         })
-        
-        if (working) {
-            throw new HttpException(`Please write another time,${dateA}to${dateB}is booked`,HttpStatus.BAD_REQUEST)
+        const workingDateB = await this.ClinicRepository.findOne({
+            where: {
+                dentistName: createPatientDto.dentist,
+                dateA: LessThanOrEqual(dateB),
+                dateB: MoreThanOrEqual(dateB)
+            }
+        })
+
+        if (working && workingDateB) {
+            throw new HttpException(`Please write another time,${dateA}to${dateB}is booked`, HttpStatus.BAD_REQUEST)
         }
-        if(dateA.getDay()<=0||dateA.getDay()>=6){
-            throw new HttpException(`Clinic is not working on weekend`,HttpStatus.BAD_REQUEST)
+        if (dateA.getDay() <= 0 || dateA.getDay() >= 6) {
+            throw new HttpException(`Clinic is not working on weekend`, HttpStatus.BAD_REQUEST)
         }
         if (dateA.getHours() < 9 || dateA.getHours() > 17) {
-            throw new HttpException(`Clinic is working since 9:00 to 17:00`,HttpStatus.BAD_REQUEST)
+            throw new HttpException(`Clinic is working since 9:00 to 17:00`, HttpStatus.BAD_REQUEST)
         }
         if (dateA.getHours() >= 12 && dateA.getHours() <= 13) {
-            throw new HttpException(`It's time for dinner`,HttpStatus.BAD_REQUEST)
+            throw new HttpException(`It's time for dinner`, HttpStatus.BAD_REQUEST)
         }
-      
+
         const newPatient = { ...createPatientDto, dateB: dateB }
         return await this.ClinicRepository.save(newPatient)
     }
     async update(patientId: number, updatePateintDto: UpdatePateintDto): Promise<PatientEntity> {
         const planned = await this.ClinicRepository.findOne(patientId)
         if (!planned) {
-            throw new HttpException(`${planned}is not found`,HttpStatus.BAD_REQUEST)
+            throw new HttpException(`${planned}is not found`, HttpStatus.BAD_REQUEST)
         }
         Object.assign(planned, updatePateintDto)
         return await this.ClinicRepository.save(planned)
     }
     async remove(id: number) {
         const working = await this.ClinicRepository.findOne(id)
-        if (!working){
-        throw new HttpException(`This ${id}wasn't found`,HttpStatus.BAD_REQUEST)
-        }     
-        return await this.ClinicRepository.delete(id)
+        if (!working) {
+            throw new HttpException(`This ${id}wasn't found`, HttpStatus.BAD_REQUEST)
         }
-    async activeList(){
-        const dateA=new Date()
-        const patients=await this.ClinicRepository.find({where:{dateA:MoreThan(dateA)}})
+        return await this.ClinicRepository.delete(id)
+    }
+    async activeList() {
+        const dateA = new Date()
+        const patients = await this.ClinicRepository.find({ where: { dateA: MoreThan(dateA) } })
         return patients
     }
 
